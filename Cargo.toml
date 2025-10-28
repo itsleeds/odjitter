@@ -7,6 +7,14 @@ description = "Disaggregate origin/destination data from zones to points"
 repository = "https://github.com/itsleeds/odjitter"
 license = "Apache-2.0"
 readme = "README.md"
+keywords = ["transportation", "gis", "geospatial", "routing", "origin-destination"]
+categories = ["science", "simulation", "command-line-utilities"]
+homepage = "https://github.com/itsleeds/odjitter"
+documentation = "https://docs.rs/odjitter"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
 
 [dependencies]
 anyhow = "1.0"

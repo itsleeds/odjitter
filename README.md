@@ -1,12 +1,13 @@
 
-# odjitter
 
-NOTE: This project is a revived fork of the original [odjitter
-project](https://github.com/dabreegster/odjitter).
+# odjitter: Jitter Origin-Destination Data
 
 [![Crates.io](https://img.shields.io/crates/v/odjitter.svg)](https://crates.io/crates/odjitter)
 [![Docs.rs](https://docs.rs/odjitter/badge.svg)](https://docs.rs/odjitter)
 [![Test](https://github.com/itsleeds/odjitter/actions/workflows/test.yml/badge.svg)](https://github.com/itsleeds/odjitter/actions/workflows/test.yml)
+
+NOTE: This project is a revived fork of the original [odjitter
+project](https://github.com/dabreegster/odjitter).
 
 This repo contains the `odjitter` crate that implements a ‘jittering’
 technique for pre-processing origin-destination (OD) data and an
@@ -29,21 +30,28 @@ preventing them overlapping.
 
 For a more detailed description of the method and an explanation of why
 it is useful, especially when modeling active modes that require dense
-active travel networks, see the paper [Jittering: A Computationally
-Efficient Method for Generating Realistic Route Networks from
-Origin-Destination
-Data](https://findingspress.org/article/33873-jittering-a-computationally-efficient-method-for-generating-realistic-route-networks-from-origin-destination-data)
-(Lovelace, Félix, and Carlino 2022).
+active travel networks, see the paper:
+
+> **Lovelace, R., Félix, R., & Carlino, D. (2022).** *Jittering: A Computationally
+> Efficient Method for Generating Realistic Route Networks from
+> Origin-Destination Data.* Findings, 33873.
+> [https://doi.org/10.32866/001c.33873](https://doi.org/10.32866/001c.33873)
+
+The paper is open access and available at: 
+[https://findingspress.org/article/33873](https://findingspress.org/article/33873-jittering-a-computationally-efficient-method-for-generating-realistic-route-networks-from-origin-destination-data)
 
 # Installation
 
-Install the package from the system command line as follows (you need to
-have installed and set-up
-[cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html)
-first):
+Install the package from crates.io (recommended):
 
 ``` bash
-cargo install --git https://github.com/dabreegster/odjitter
+cargo install odjitter
+```
+
+Or install from the GitHub repository:
+
+``` bash
+cargo install --git https://github.com/itsleeds/odjitter
 ```
 
 To check the package installation worked, you can run `odjitter` command
@@ -79,11 +87,16 @@ representing single trips.
 
 ## Docker
 
-Alternatively, you can run through Docker: `docker run -t abstreet/odjitter <CMD>`. See below for command line usage, or start with `help`.
+Alternatively, you can run through Docker:
+`docker run -t abstreet/odjitter <CMD>`. See below for command line
+usage, or start with `help`.
 
-NOTE: There's no maintenance guarantee the Docker image has up-to-date changes from this repository. File an issue if you think the Docker version is out-of-date and you need something newer.
+NOTE: There’s no maintenance guarantee the Docker image has up-to-date
+changes from this repository. File an issue if you think the Docker
+version is out-of-date and you need something newer.
 
-(For maintainers only: to build and push a new version, `docker build -t odjitter . && docker tag odjitter abstreet/odjitter:latest && docker push abstreet/odjitter:latest`.)
+(For maintainers only: to build and push a new version,
+`docker build -t odjitter . && docker tag odjitter abstreet/odjitter:latest && docker push abstreet/odjitter:latest`.)
 
 # `jitter` OD data
 
@@ -99,10 +112,10 @@ repo, the first few lines of which are illustrated below:
     default) and other columns representing trip counts:
 
 | geo_code1 | geo_code2 | all | from_home | train | bus | car_driver | car_passenger | bicycle | foot | other |
-|:----------|:----------|----:|----------:|------:|----:|-----------:|--------------:|--------:|-----:|------:|
-| S02001616 | S02001616 |  82 |         0 |     0 |   3 |          6 |             0 |       2 |   71 |     0 |
-| S02001616 | S02001620 | 188 |         0 |     0 |  42 |         26 |             3 |      11 |  105 |     1 |
-| S02001616 | S02001621 |  99 |         0 |     0 |  13 |          7 |             3 |      15 |   61 |     0 |
+|:---|:---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| S02001616 | S02001616 | 82 | 0 | 0 | 3 | 6 | 0 | 2 | 71 | 0 |
+| S02001616 | S02001620 | 188 | 0 | 0 | 42 | 26 | 3 | 11 | 105 | 1 |
+| S02001616 | S02001621 | 99 | 0 | 0 | 13 | 7 | 3 | 15 | 61 | 0 |
 
 2.  A [.geojson
     file](https://github.com/dabreegster/odjitter/blob/main/data/zones.geojson)
@@ -219,6 +232,18 @@ which generates the datasets shown in the figures below.
 
 ``` r
 remotes::install_github("dabreegster/odjitter", subdir = "r")
+```
+
+
+    ── R CMD build ─────────────────────────────────────────────────────────────────
+    * checking for file ‘/tmp/RtmpDmZGd8/remotes946e836ca9648/dabreegster-odjitter-9a67737/r/DESCRIPTION’ ... OK
+    * preparing ‘odjitter’:
+    * checking DESCRIPTION meta-information ... OK
+    * checking for LF line-endings in source and make files and shell scripts
+    * checking for empty or unneeded directories
+    * building ‘odjitter_0.0.0.9000.tar.gz’
+
+``` r
 # Note: code to generate the visualisation below
 od = readr::read_csv("data/od.csv")
 zones = sf::read_sf("data/zones.geojson")
@@ -326,15 +351,15 @@ rm output_individual.geojson
 ```
 
     {"type":"FeatureCollection", "features":[
-    {"geometry":{"coordinates":[[-3.2263977926488985,55.92783397974489],[-3.2097949190090564,55.931894382403456]],"type":"LineString"},"properties":{"mode":"bus"},"type":"Feature"},
-    {"geometry":{"coordinates":[[-3.214452310499139,55.926362026835776],[-3.2099011140196207,55.93444441681924]],"type":"LineString"},"properties":{"mode":"bus"},"type":"Feature"},
-    {"geometry":{"coordinates":[[-3.2135400698085235,55.93035182421444],[-3.2244453899330097,55.9290303580713]],"type":"LineString"},"properties":{"mode":"bus"},"type":"Feature"},
-    {"geometry":{"coordinates":[[-3.226151458277428,55.92976711232548],[-3.213318278973036,55.93497592560621]],"type":"LineString"},"properties":{"mode":"bicycle"},"type":"Feature"},
-    {"geometry":{"coordinates":[[-3.2185705494212358,55.926226845455034],[-3.2115019430114167,55.93197469392582]],"type":"LineString"},"properties":{"mode":"bicycle"},"type":"Feature"},
-    {"geometry":{"coordinates":[[-3.2064406813843465,55.93266248325375],[-3.2190062133419635,55.92613966571992]],"type":"LineString"},"properties":{"mode":"car_driver"},"type":"Feature"},
-    {"geometry":{"coordinates":[[-3.226009373785913,55.9285088488262],[-3.2149550551179176,55.93495382922043]],"type":"LineString"},"properties":{"mode":"car_driver"},"type":"Feature"},
-    {"geometry":{"coordinates":[[-3.2152401192504443,55.932554427847144],[-3.214478335328521,55.933957525733355]],"type":"LineString"},"properties":{"mode":"car_driver"},"type":"Feature"},
-    {"geometry":{"coordinates":[[-3.218021802161658,55.92963564155289],[-3.22510485680737,55.92984949438051]],"type":"LineString"},"properties":{"mode":"car_driver"},"type":"Feature"},
+    {"geometry":{"coordinates":[[-3.2059584728250328,55.93520683663869],[-3.2137524583814403,55.93210608740144]],"type":"LineString"},"properties":{"mode":"bicycle"},"type":"Feature"},
+    {"geometry":{"coordinates":[[-3.2039747727477206,55.93664758045757],[-3.2151339445812104,55.93723876316798]],"type":"LineString"},"properties":{"mode":"bicycle"},"type":"Feature"},
+    {"geometry":{"coordinates":[[-3.2170383060060956,55.93559421780482],[-3.221131173696157,55.93390027936494]],"type":"LineString"},"properties":{"mode":"foot"},"type":"Feature"},
+    {"geometry":{"coordinates":[[-3.2085134650498928,55.9323044919582],[-3.2216549479904537,55.928586395654236]],"type":"LineString"},"properties":{"mode":"foot"},"type":"Feature"},
+    {"geometry":{"coordinates":[[-3.2115605899817115,55.9294302852865],[-3.205114054202706,55.934847495917424]],"type":"LineString"},"properties":{"mode":"foot"},"type":"Feature"},
+    {"geometry":{"coordinates":[[-3.206167006148331,55.93469983183215],[-3.212175536012633,55.92961380904984]],"type":"LineString"},"properties":{"mode":"foot"},"type":"Feature"},
+    {"geometry":{"coordinates":[[-3.2271536711095687,55.9278166713787],[-3.2172506561183387,55.935035752777395]],"type":"LineString"},"properties":{"mode":"foot"},"type":"Feature"},
+    {"geometry":{"coordinates":[[-3.2196641964784867,55.930991151978354],[-3.216649621251186,55.93558290046283]],"type":"LineString"},"properties":{"mode":"foot"},"type":"Feature"},
+    {"geometry":{"coordinates":[[-3.2112181123480643,55.928808982296296],[-3.213024990292648,55.92978866134279]],"type":"LineString"},"properties":{"mode":"foot"},"type":"Feature"},
 
 # Details
 
@@ -486,11 +511,10 @@ functionality contained in this repo is an extended and much faster
 implementation: according to our benchmarks on a large dataset it was
 around 1000 times faster than the R implementation.
 
-See [od2net](https://github.com/a-b-street/od2net) for a complete pipeline to generate route networks.
-
 # References
 
-<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="refs" class="references csl-bib-body hanging-indent"
+entry-spacing="0">
 
 <div id="ref-lovelace_jittering_2022b" class="csl-entry">
 

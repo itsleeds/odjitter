@@ -1,7 +1,54 @@
-//! This crate transforms origin/destination data aggregated by zone into a disaggregated form, by
-//! sampling specific points from the zone.
+//! # odjitter: Jitter Origin-Destination Data
 //!
-//! TODO: Motivate and explain with a full example.
+//! This crate transforms origin/destination (OD) data aggregated by zone into a disaggregated form, by
+//! sampling specific points from the zone. This technique is known as "jittering" and is particularly
+//! useful for modeling active travel modes and generating realistic route networks.
+//!
+//! ## What is jittering?
+//!
+//! Jittering is a method that takes OD data in a CSV file plus zones and geographic datasets 
+//! representing trip start and end points in GeoJSON files, and outputs geographic lines 
+//! representing movement between the zones. The name comes from jittering in a data visualization 
+//! context, which refers to the addition of random noise to the location of points, preventing 
+//! them from overlapping.
+//!
+//! ## Why jitter?
+//!
+//! For a detailed description of the method and an explanation of why it is useful, especially 
+//! when modeling active modes that require dense active travel networks, see the paper:
+//!
+//! > Lovelace, R., Félix, R., & Carlino, D. (2022). Jittering: A Computationally Efficient Method 
+//! > for Generating Realistic Route Networks from Origin-Destination Data. *Findings*, 33873.
+//! > <https://doi.org/10.32866/001c.33873>
+//!
+//! ## Example Usage
+//!
+//! The crate provides both a command-line interface and a library API. For command-line usage,
+//! see the README. For library usage:
+//!
+//! ```rust,no_run
+//! use odjitter::{jitter, Options, Subsample};
+//!
+//! // Configure jittering options
+//! let options = Options {
+//!     subsample_origin: Subsample::RandomPoints,
+//!     subsample_destination: Subsample::RandomPoints,
+//!     origin_key: "geo_code1".to_string(),
+//!     destination_key: "geo_code2".to_string(),
+//!     min_distance_meters: 1.0,
+//!     deduplicate_pairs: false,
+//! };
+//!
+//! // Then use jitter() to process your OD data
+//! // See documentation for full details on parameters
+//! ```
+//!
+//! ## Features
+//!
+//! - **Fast**: Implemented in Rust for high performance
+//! - **Flexible**: Support for weighted sampling and custom subpoints
+//! - **Geographic**: Works with GeoJSON files and WGS84 coordinates
+//! - **Reproducible**: Optional RNG seeding for deterministic results
 
 mod scrape;
 #[cfg(test)]
@@ -27,6 +74,25 @@ use serde_json::{Map, Value};
 
 pub use self::scrape::scrape_points;
 
+/// Configuration options for the jittering process.
+///
+/// This struct controls various aspects of how origin-destination data is jittered,
+/// including how points are sampled from zones and distance constraints.
+///
+/// # Examples
+///
+/// ```rust
+/// use odjitter::{Options, Subsample};
+///
+/// let options = Options {
+///     subsample_origin: Subsample::RandomPoints,
+///     subsample_destination: Subsample::RandomPoints,
+///     origin_key: "geo_code1".to_string(),
+///     destination_key: "geo_code2".to_string(),
+///     min_distance_meters: 1.0,
+///     deduplicate_pairs: false,
+/// };
+/// ```
 pub struct Options {
     /// How to pick points from origin zones
     pub subsample_origin: Subsample,
@@ -73,31 +139,80 @@ impl RTreeObject for WeightedPoint {
     }
 }
 
-/// This method transforms aggregate origin/destination pairs into a disaggregated form, by
-/// sampling specific points from the zone.
+/// Transforms aggregate origin/destination pairs into a disaggregated form by sampling 
+/// specific points from zones.
 ///
-/// The input is a CSV file, with each row representing trips between an origin and destination,
-/// expressed as a named zone. The columns in the CSV file can break down the number of trips by
-/// different modes (like walking, cycling, etc).
+/// This is the main jittering function that processes OD data from a CSV file and outputs
+/// geographic desire lines with jittered origins and destinations.
 ///
-/// Each input row is repeated some number of times, based on `disaggregation_threshold`. If the
-/// row originally represents 100 trips and `disaggregation_threshold` is 5, then the row will be
-/// repeated 20 times. Each time, the origin and destination will be transformed from the entire
-/// zone to a specific point within the zone, determined using the specified `Subsample`.
+/// # How it works
 ///
-/// The output LineStrings are provided by callback.
-///
-/// Note this assumes assumes all input is in the WGS84 coordinate system, and uses the Haversine
-/// formula to calculate distances.
+/// The input CSV file contains rows representing trips between origin and destination zones.
+/// Each row is repeated based on the `disaggregation_threshold` parameter. For example, if a
+/// row represents 100 trips and `disaggregation_threshold` is 5, the row will be repeated 20
+/// times. Each repetition samples specific points within the origin and destination zones
+/// according to the specified `Subsample` strategy.
 ///
 /// # Arguments
 ///
-/// * `disaggregation_threshold` - What's the maximum number of trips per output OD row that's
-///   allowed? If an input OD row contains less than this, it will appear in the output without
-///   transformation. Otherwise, the input row is repeated until the sum matches the original value,
-///   but each output row obeys this maximum.
-/// * `disaggregation_key` - Which column in the OD row specifies the total number of trips to
-///   disaggregate?
+/// * `csv_path` - Path to the CSV file containing origin-destination data
+/// * `zones` - HashMap mapping zone IDs to their polygon geometries
+/// * `disaggregation_threshold` - Maximum number of trips per output OD row. If an input row
+///   contains fewer trips than this threshold, it appears in the output without transformation.
+///   Otherwise, the row is repeated until the sum matches the original value, with each output
+///   row respecting this maximum.
+/// * `disaggregation_key` - Name of the CSV column specifying the total number of trips to
+///   disaggregate (e.g., "all", "car", "bicycle")
+/// * `rng` - Random number generator for reproducible results (use a seeded RNG for deterministic output)
+/// * `options` - Configuration options controlling the jittering process
+/// * `output` - Callback function that receives each jittered Feature
+///
+/// # Coordinate System
+///
+/// All input data must be in the WGS84 (EPSG:4326) coordinate system. Distances are calculated
+/// using the Haversine formula.
+///
+/// # Returns
+///
+/// Returns `Ok(())` on success, or an error if the CSV file cannot be read, contains invalid
+/// data, or if the specified columns are missing.
+///
+/// # Examples
+///
+/// ```rust,no_run
+/// use odjitter::{jitter, Options, Subsample};
+/// use std::collections::HashMap;
+/// use rand::rngs::StdRng;
+/// use rand::SeedableRng;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let zones = HashMap::new(); // Load your zones
+/// let mut rng = StdRng::seed_from_u64(42);
+/// let options = Options {
+///     subsample_origin: Subsample::RandomPoints,
+///     subsample_destination: Subsample::RandomPoints,
+///     origin_key: "geo_code1".to_string(),
+///     destination_key: "geo_code2".to_string(),
+///     min_distance_meters: 1.0,
+///     deduplicate_pairs: false,
+/// };
+///
+/// jitter(
+///     "od_data.csv",
+///     &zones,
+///     50,
+///     "all".to_string(),
+///     &mut rng,
+///     options,
+///     |feature| {
+///         // Process each jittered feature
+///         println!("Generated feature: {:?}", feature);
+///         Ok(())
+///     },
+/// )?;
+/// # Ok(())
+/// # }
+/// ```
 pub fn jitter<P: AsRef<Path>, F: FnMut(Feature) -> Result<()>>(
     csv_path: P,
     zones: &HashMap<String, MultiPolygon<f64>>,

@@ -3,14 +3,19 @@ format: gfm
 bibliography: references.bib
 ---
 
+# odjitter: Disaggregate Origin-Destination Data
+
 ```{r eval=FALSE, echo=FALSE}
 # Build the paper:
 Rscript -e 'rmarkdown::render("README.Rmd")'
 ```
 
-# odjitter
+[![Crates.io](https://img.shields.io/crates/v/odjitter.svg)](https://crates.io/crates/odjitter)
+[![Docs.rs](https://docs.rs/odjitter/badge.svg)](https://docs.rs/odjitter)
+[![Test](https://github.com/itsleeds/odjitter/actions/workflows/test.yml/badge.svg)](https://github.com/itsleeds/odjitter/actions/workflows/test.yml)
 
-NOTE: This project is deprecated. Please use [od2net](https://github.com/Urban-Analytics-Technology-Platform/od2net) directly to generate route networks from OD data.
+NOTE: This project is a revived fork of the original [odjitter
+project](https://github.com/dabreegster/odjitter).
 
 This repo contains the `odjitter` crate that implements a 'jittering' technique for pre-processing origin-destination (OD) data and an associated R interface package (see the [r](r/) subdirectory).
 We hope to support other languages in the future (see [issue #23](https://github.com/dabreegster/odjitter/issues/23)).
@@ -22,14 +27,24 @@ The name comes from jittering in a [data visualisation context](https://ggplot2-
 
 ## Why jitter?
 
-For a more detailed description of the method and an explanation of why it is useful, especially when modeling active modes that require dense active travel networks, see the paper [Jittering: A Computationally Efficient Method for Generating Realistic Route Networks from Origin-Destination Data](https://findingspress.org/article/33873-jittering-a-computationally-efficient-method-for-generating-realistic-route-networks-from-origin-destination-data) [@lovelace_jittering_2022b].
+For a more detailed description of the method and an explanation of why it is useful, especially when modeling active modes that require dense active travel networks, see the paper:
+
+> **Lovelace, R., Félix, R., & Carlino, D. (2022).** *Jittering: A Computationally Efficient Method for Generating Realistic Route Networks from Origin-Destination Data.* Findings, 33873. [https://doi.org/10.32866/001c.33873](https://doi.org/10.32866/001c.33873)
+
+The paper is open access and available at: [https://findingspress.org/article/33873](https://findingspress.org/article/33873-jittering-a-computationally-efficient-method-for-generating-realistic-route-networks-from-origin-destination-data)
 
 # Installation
 
-Install the package from the system command line as follows (you need to have installed and set-up [cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html) first):
+Install the package from crates.io (recommended):
 
 ```bash
-cargo install --git https://github.com/dabreegster/odjitter
+cargo install odjitter
+```
+
+Or install from the GitHub repository:
+
+```bash
+cargo install --git https://github.com/itsleeds/odjitter
 ```
 
 To check the package installation worked, you can run `odjitter` command without arguments.
