@@ -1,7 +1,12 @@
 
 # odjitter
 
-NOTE: This project is deprecated. Please use [od2net](https://github.com/Urban-Analytics-Technology-Platform/od2net) directly to generate route networks from OD data.
+NOTE: This project is a revived fork of the original [odjitter
+project](https://github.com/dabreegster/odjitter).
+
+[![Crates.io](https://img.shields.io/crates/v/odjitter.svg)](https://crates.io/crates/odjitter)
+[![Docs.rs](https://docs.rs/odjitter/badge.svg)](https://docs.rs/odjitter)
+[![CI](https://github.com/itsleeds/odjitter/actions/workflows/ci.yml/badge.svg)](https://github.com/itsleeds/odjitter/actions/workflows/ci.yml)
 
 This repo contains the `odjitter` crate that implements a ‘jittering’
 technique for pre-processing origin-destination (OD) data and an
@@ -480,6 +485,8 @@ from the R package [`od`](https://itsleeds.github.io/od/index.html). The
 functionality contained in this repo is an extended and much faster
 implementation: according to our benchmarks on a large dataset it was
 around 1000 times faster than the R implementation.
+
+See [od2net](https://github.com/a-b-street/od2net) for a complete pipeline to generate route networks.
 
 # References
 
