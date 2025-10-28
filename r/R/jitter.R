@@ -206,5 +206,5 @@ odjitter_is_installed = function(odjitter_location) {
   #   }
   # }
   sysoutput = system(paste0(odjitter_location, " --help"), intern = TRUE)
-  grepl(pattern = "odjitter", x = sysoutput[1])
+  grepl(pattern = "odjitter", x = paste0(collapse = " ", sysoutput))
 }
