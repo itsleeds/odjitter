@@ -2,9 +2,9 @@
 name = "odjitter"
 version = "0.2.0"
 edition = "2021"
-authors = ["Dustin Carlino <dabreegster@gmail.com"]
+authors = ["Robin Lovelace <robinlovelace>"]
 description = "Disaggregate origin/destination data from zones to points"
-repository = "https://github.com/dabreegster/odjitter"
+repository = "https://github.com/itsleeds/odjitter"
 license = "Apache-2.0"
 readme = "README.md"
 
