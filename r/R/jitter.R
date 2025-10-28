@@ -27,13 +27,17 @@
 #' @param show_command Show the command line call for jittering?
 #'   Set to FALSE by default, set it to TRUE for debugging/educational purposes.
 #' @param deduplicate_pairs Return only unique OD pairs? TRUE by default.
+#' @param odjitter_location Path to the odjitter executable. By default, assumes
+#'   "odjitter" is in your PATH. On Windows, you may need to specify the full path.
 #' @return An `sf` object with the jittered result
 #' @export
 #'
 #' @examples
 #' od = readr::read_csv("https://github.com/itsleeds/odjitter/raw/main/data/od.csv")
 #' zones = sf::read_sf("https://github.com/itsleeds/odjitter/raw/main/data/zones.geojson")
-#' road_network = sf::read_sf("https://github.com/itsleeds/odjitter/raw/main/data/road_network.geojson")
+#' road_network = sf::read_sf(
+#'   "https://github.com/itsleeds/odjitter/raw/main/data/road_network.geojson"
+#' )
 #' od_jittered = jitter(od, zones, subpoints = road_network)
 #' od_jittered = jitter(od, zones, subpoints = road_network, show_command = TRUE)
 #' od_jittered = jitter(
@@ -72,7 +76,7 @@
 #' #   odjitter_location = r"(powershell C:\Users\geoevid\.cargo\bin\odjitter.exe)"
 #' # )
 #' # plot(od_jittered)
-#' }
+#' # }
 jitter = function(
     od,
     zones,
@@ -88,7 +92,7 @@ jitter = function(
     min_distance_meters = 1,
     weight_key_destinations = NULL,
     weight_key_origins = NULL,
-    rng_seed = round(runif(n = 1) * 1e5),
+    rng_seed = round(stats::runif(n = 1) * 1e5),
     od_csv_path = NULL,
     output_path = NULL,
     subpoints_origins_path = NULL,
@@ -99,7 +103,18 @@ jitter = function(
     deduplicate_pairs = TRUE,
     odjitter_location = "odjitter"
     ) { 
+  # Check if odjitter is installed at the specified location
   installed = odjitter_is_installed(odjitter_location)
+  
+  # If not found in default location, check ~/.cargo/bin/odjitter
+  if(!installed && odjitter_location == "odjitter") {
+    cargo_bin_path = file.path(Sys.getenv("HOME"), ".cargo", "bin", "odjitter")
+    if(file.exists(cargo_bin_path)) {
+      odjitter_location = cargo_bin_path
+      installed = odjitter_is_installed(odjitter_location)
+    }
+  }
+  
   # powershell = installed == "PowerShell"
   # if(powershell) {
   #   installed = system("odjitter --help", intern = TRUE)

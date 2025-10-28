@@ -89,9 +89,9 @@ An \code{sf} object with the jittered result
 Jitter OD data using the Rust crate odjitter
 }
 \examples{
-od = readr::read_csv("https://github.com/dabreegster/odjitter/raw/main/data/od.csv")
-zones = sf::read_sf("https://github.com/dabreegster/odjitter/raw/main/data/zones.geojson")
-road_network = sf::read_sf("https://github.com/dabreegster/odjitter/raw/main/data/road_network.geojson")
+od = readr::read_csv("https://github.com/itsleeds/odjitter/raw/main/data/od.csv")
+zones = sf::read_sf("https://github.com/itsleeds/odjitter/raw/main/data/zones.geojson")
+road_network = sf::read_sf("https://github.com/itsleeds/odjitter/raw/main/data/road_network.geojson")
 od_jittered = jitter(od, zones, subpoints = road_network)
 od_jittered = jitter(od, zones, subpoints = road_network, show_command = TRUE)
 od_jittered = jitter(
