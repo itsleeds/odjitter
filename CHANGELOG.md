@@ -72,5 +72,5 @@ Initial release by Dustin Carlino.
 - `cargo install --git` fails with version conflicts (fixed in v0.2.0)
 - Some edge cases not fully tested (addressed in v0.2.0)
 
-[0.2.0]: https://github.com/dabreegster/odjitter/compare/main...v0.2.0
-[0.1.0]: https://github.com/dabreegster/odjitter/releases/tag/v0.1.0
+[0.2.0]: https://github.com/itsleeds/odjitter/compare/main...v0.2.0
+[0.1.0]: https://github.com/itsleeds/odjitter/releases/tag/v0.1.0

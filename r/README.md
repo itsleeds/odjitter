@@ -8,13 +8,13 @@
 <!-- badges: end -->
 
 The goal of this {odjitter} R package is to provide an R interface to
-the [odjitter](https://github.com/dabreegster/odjitter) Rust crate for
+the [odjitter](https://github.com/itsleeds/odjitter) Rust crate for
 processing origin-destination data.
 
 Install the development version as follows
 
 ``` r
-remotes::install_github("dabreegster/odjitter", subdir = "r")
+remotes::install_github("itsleeds/odjitter", subdir = "r")
 ```
 
 ## R interface to `odjitter` Rust crate via system commands

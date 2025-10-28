@@ -68,9 +68,9 @@ NOTE: There's no maintenance guarantee the Docker image has up-to-date changes f
 
 # `jitter` OD data
 
-To jitter OD data you need a minimum of three inputs, examples of which are provided in the [`data/` folder](https://github.com/dabreegster/odjitter/tree/main/data) of this repo, the first few lines of which are illustrated below:
+To jitter OD data you need a minimum of three inputs, examples of which are provided in the [`data/` folder](https://github.com/itsleeds/odjitter/tree/main/data) of this repo, the first few lines of which are illustrated below:
 
-1. A [.csv file](https://github.com/dabreegster/odjitter/blob/main/data/od.csv) containing OD data with two columns containing zone IDs (specified with  `--origin-key=geo_code1 --destination-key=geo_code2` by default) and other columns representing trip counts:
+1. A [.csv file](https://github.com/itsleeds/odjitter/blob/main/data/od.csv) containing OD data with two columns containing zone IDs (specified with  `--origin-key=geo_code1 --destination-key=geo_code2` by default) and other columns representing trip counts:
 
 
 |geo_code1 |geo_code2 | all| from_home| train| bus| car_driver| car_passenger| bicycle| foot| other|
@@ -79,13 +79,13 @@ To jitter OD data you need a minimum of three inputs, examples of which are prov
 |S02001616 |S02001620 | 188|         0|     0|  42|         26|             3|      11|  105|     1|
 |S02001616 |S02001621 |  99|         0|     0|  13|          7|             3|      15|   61|     0|
 
-2. A [.geojson file](https://github.com/dabreegster/odjitter/blob/main/data/zones.geojson) representing zones that contains values matching the zone IDs in the OD data (the field containing zone IDs is specified with `--zone-name-key=InterZone` by default):
+2. A [.geojson file](https://github.com/itsleeds/odjitter/blob/main/data/zones.geojson) representing zones that contains values matching the zone IDs in the OD data (the field containing zone IDs is specified with `--zone-name-key=InterZone` by default):
 
 ```{bash}
 head -6 data/zones.geojson
 ```
 
-3. One or more [.geojson file](https://github.com/dabreegster/odjitter/blob/main/data/road_network.geojson) representing geographic entities (e.g. road networks) from which origin and destination points are sampled
+3. One or more [.geojson file](https://github.com/itsleeds/odjitter/blob/main/data/road_network.geojson) representing geographic entities (e.g. road networks) from which origin and destination points are sampled
 
 ```{bash}
 head -6 data/road_network.geojson
@@ -137,7 +137,7 @@ You can call the Rust code from R, as illustrated by the code below which genera
 
 ```{r, message=FALSE}
 #| echo: true
-remotes::install_github("dabreegster/odjitter", subdir = "r")
+remotes::install_github("itsleeds/odjitter", subdir = "r")
 # Note: code to generate the visualisation below
 od = readr::read_csv("data/od.csv")
 zones = sf::read_sf("data/zones.geojson")

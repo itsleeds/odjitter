@@ -102,11 +102,11 @@ version is out-of-date and you need something newer.
 
 To jitter OD data you need a minimum of three inputs, examples of which
 are provided in the [`data/`
-folder](https://github.com/dabreegster/odjitter/tree/main/data) of this
+folder](https://github.com/itsleeds/odjitter/tree/main/data) of this
 repo, the first few lines of which are illustrated below:
 
 1.  A [.csv
-    file](https://github.com/dabreegster/odjitter/blob/main/data/od.csv)
+    file](https://github.com/itsleeds/odjitter/blob/main/data/od.csv)
     containing OD data with two columns containing zone IDs (specified
     with `--origin-key=geo_code1 --destination-key=geo_code2` by
     default) and other columns representing trip counts:
@@ -118,7 +118,7 @@ repo, the first few lines of which are illustrated below:
 | S02001616 | S02001621 | 99 | 0 | 0 | 13 | 7 | 3 | 15 | 61 | 0 |
 
 2.  A [.geojson
-    file](https://github.com/dabreegster/odjitter/blob/main/data/zones.geojson)
+    file](https://github.com/itsleeds/odjitter/blob/main/data/zones.geojson)
     representing zones that contains values matching the zone IDs in the
     OD data (the field containing zone IDs is specified with
     `--zone-name-key=InterZone` by default):
@@ -135,7 +135,7 @@ head -6 data/zones.geojson
     { "type": "Feature", "properties": { "InterZone": "S02001616", "Name": "Merchiston and Greenhill", "TotPop2011": 5018, "ResPop2011": 4730, "HHCnt2011": 2186, "StdAreaHa": 126.910911, "StdAreaKm2": 1.269109, "Shape_Leng": 9073.5402482000009, "Shape_Area": 1269109.10155 }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -3.2040366, 55.9333372 ], [ -3.2036354, 55.9321624 ], [ -3.2024036, 55.9321874 ], [ -3.2019838, 55.9315586 ], [ -3.2005071, 55.9317411 ], [ -3.199902, 55.931113 ], [ -3.2033504, 55.9308279 ], [ -3.2056319, 55.9309507 ], [ -3.2094979, 55.9308666 ], [ -3.2109753, 55.9299985 ], [ -3.2107073, 55.9285904 ], [ -3.2124928, 55.927854 ], [ -3.2125633, 55.9264661 ], [ -3.2094928, 55.9265616 ], [ -3.212929, 55.9260741 ], [ -3.2130774, 55.9264384 ], [ -3.2183973, 55.9252709 ], [ -3.2208941, 55.925282 ], [ -3.2242732, 55.9258683 ], [ -3.2279975, 55.9277452 ], [ -3.2269867, 55.928489 ], [ -3.2267625, 55.9299817 ], [ -3.2254561, 55.9307854 ], [ -3.224148, 55.9300725 ], [ -3.2197791, 55.9315472 ], [ -3.2222706, 55.9339127 ], [ -3.2224909, 55.934809 ], [ -3.2197844, 55.9354692 ], [ -3.2204535, 55.936195 ], [ -3.218362, 55.9368806 ], [ -3.2165749, 55.937069 ], [ -3.215582, 55.9380761 ], [ -3.2124132, 55.9355465 ], [ -3.212774, 55.9347972 ], [ -3.2119068, 55.9341947 ], [ -3.210138, 55.9349668 ], [ -3.208051, 55.9347716 ], [ -3.2083105, 55.9364224 ], [ -3.2053546, 55.9381495 ], [ -3.2046077, 55.9395298 ], [ -3.20356, 55.9380951 ], [ -3.2024323, 55.936318 ], [ -3.2029121, 55.935831 ], [ -3.204832, 55.9357555 ], [ -3.2040366, 55.9333372 ] ] ] ] } },
 
 3.  One or more [.geojson
-    file](https://github.com/dabreegster/odjitter/blob/main/data/road_network.geojson)
+    file](https://github.com/itsleeds/odjitter/blob/main/data/road_network.geojson)
     representing geographic entities (e.g. road networks) from which
     origin and destination points are sampled
 
@@ -231,7 +231,7 @@ You can call the Rust code from R, as illustrated by the code below
 which generates the datasets shown in the figures below.
 
 ``` r
-remotes::install_github("dabreegster/odjitter", subdir = "r")
+remotes::install_github("itsleeds/odjitter", subdir = "r")
 ```
 
 

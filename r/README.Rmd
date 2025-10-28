@@ -16,12 +16,12 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of this {odjitter} R package is to provide an R interface to the [odjitter](https://github.com/dabreegster/odjitter) Rust crate for processing origin-destination data.
+The goal of this {odjitter} R package is to provide an R interface to the [odjitter](https://github.com/itsleeds/odjitter) Rust crate for processing origin-destination data.
 
 Install the development version as follows
 
 ```{r, eval=FALSE}
-remotes::install_github("dabreegster/odjitter", subdir = "r")
+remotes::install_github("itsleeds/odjitter", subdir = "r")
 ```
 
 ## R interface to `odjitter` Rust crate via system commands
@@ -31,10 +31,10 @@ library(odjitter)
 ```
 
 ```{r jitter, out.width="50%", fig.show='hold'}
-od = readr::read_csv("https://github.com/dabreegster/odjitter/raw/main/data/od.csv")
-zones = sf::read_sf("https://github.com/dabreegster/odjitter/raw/main/data/zones.geojson")
+od = readr::read_csv("https://github.com/itsleeds/odjitter/raw/main/data/od.csv")
+zones = sf::read_sf("https://github.com/itsleeds/odjitter/raw/main/data/zones.geojson")
 names(zones)[1] = "geo_code"
-road_network = sf::read_sf("https://github.com/dabreegster/odjitter/raw/main/data/road_network.geojson")
+road_network = sf::read_sf("https://github.com/itsleeds/odjitter/raw/main/data/road_network.geojson")
 od_unjittered = od::od_to_sf(od, zones)
 set.seed(42) # for reproducibility
 od_jittered = jitter(od, zones, subpoints = road_network)

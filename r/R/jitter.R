@@ -31,9 +31,9 @@
 #' @export
 #'
 #' @examples
-#' od = readr::read_csv("https://github.com/dabreegster/odjitter/raw/main/data/od.csv")
-#' zones = sf::read_sf("https://github.com/dabreegster/odjitter/raw/main/data/zones.geojson")
-#' road_network = sf::read_sf("https://github.com/dabreegster/odjitter/raw/main/data/road_network.geojson")
+#' od = readr::read_csv("https://github.com/itsleeds/odjitter/raw/main/data/od.csv")
+#' zones = sf::read_sf("https://github.com/itsleeds/odjitter/raw/main/data/zones.geojson")
+#' road_network = sf::read_sf("https://github.com/itsleeds/odjitter/raw/main/data/road_network.geojson")
 #' od_jittered = jitter(od, zones, subpoints = road_network)
 #' od_jittered = jitter(od, zones, subpoints = road_network, show_command = TRUE)
 #' od_jittered = jitter(
@@ -108,7 +108,7 @@ jitter = function(
     message("Cannot find the odjitter command on your computer")
     stop(
       "# Try installing it with the following command:\n",
-      "cargo install --git https://github.com/dabreegster/odjitter\n",
+      "cargo install --git https://github.com/itsleeds/odjitter\n",
       "# You need to have installed cargo"
       )
   }
