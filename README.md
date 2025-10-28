@@ -6,7 +6,7 @@ project](https://github.com/dabreegster/odjitter).
 
 [![Crates.io](https://img.shields.io/crates/v/odjitter.svg)](https://crates.io/crates/odjitter)
 [![Docs.rs](https://docs.rs/odjitter/badge.svg)](https://docs.rs/odjitter)
-[![CI](https://github.com/itsleeds/odjitter/actions/workflows/ci.yml/badge.svg)](https://github.com/itsleeds/odjitter/actions/workflows/ci.yml)
+[![Test](https://github.com/itsleeds/odjitter/actions/workflows/test.yml/badge.svg)](https://github.com/itsleeds/odjitter/actions/workflows/test.yml)
 
 This repo contains the `odjitter` crate that implements a ‘jittering’
 technique for pre-processing origin-destination (OD) data and an
