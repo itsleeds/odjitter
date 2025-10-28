@@ -6,18 +6,18 @@
 //!
 //! ## What is jittering?
 //!
-//! Jittering is a method that takes OD data in a CSV file plus zones and geographic datasets 
-//! representing trip start and end points in GeoJSON files, and outputs geographic lines 
-//! representing movement between the zones. The name comes from jittering in a data visualization 
-//! context, which refers to the addition of random noise to the location of points, preventing 
+//! Jittering is a method that takes OD data in a CSV file plus zones and geographic datasets
+//! representing trip start and end points in GeoJSON files, and outputs geographic lines
+//! representing movement between the zones. The name comes from jittering in a data visualization
+//! context, which refers to the addition of random noise to the location of points, preventing
 //! them from overlapping.
 //!
 //! ## Why jitter?
 //!
-//! For a detailed description of the method and an explanation of why it is useful, especially 
+//! For a detailed description of the method and an explanation of why it is useful, especially
 //! when modeling active modes that require dense active travel networks, see the paper:
 //!
-//! > Lovelace, R., Félix, R., & Carlino, D. (2022). Jittering: A Computationally Efficient Method 
+//! > Lovelace, R., Félix, R., & Carlino, D. (2022). Jittering: A Computationally Efficient Method
 //! > for Generating Realistic Route Networks from Origin-Destination Data. *Findings*, 33873.
 //! > <https://doi.org/10.32866/001c.33873>
 //!
@@ -139,7 +139,7 @@ impl RTreeObject for WeightedPoint {
     }
 }
 
-/// Transforms aggregate origin/destination pairs into a disaggregated form by sampling 
+/// Transforms aggregate origin/destination pairs into a disaggregated form by sampling
 /// specific points from zones.
 ///
 /// This is the main jittering function that processes OD data from a CSV file and outputs
