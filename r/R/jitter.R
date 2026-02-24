@@ -175,15 +175,28 @@ jitter = function(
   readr::write_csv(od, od_csv_path)
   sf::write_sf(zones, file.path(data_dir, "zones.geojson"), delete_dsn = TRUE)
   
+  # Build weight key arguments
+  weight_origins_arg = ""
+  weight_destinations_arg = ""
+  if (!is.null(weight_key_origins)) {
+    weight_origins_arg = paste0("--weight-key-origins ", weight_key_origins)
+  }
+  if (!is.null(weight_key_destinations)) {
+    weight_destinations_arg = paste0("--weight-key-destinations ", weight_key_destinations)
+  }
+  
   msg = glue::glue("{odjitter_location} jitter --od-csv-path {od_csv_path} \\
   --zones-path {zones_path} \\
   --zone-name-key {zone_name_key} \\
   --origin-key {origin_key} \\
   --destination-key {destination_key} \\
   --subpoints-origins-path {subpoints_origins_path} \\
+  {weight_origins_arg} \\
   --subpoints-destinations-path {subpoints_destinations_path} \\
+  {weight_destinations_arg} \\
   --disaggregation-key {disaggregation_key} \\
   --disaggregation-threshold {disaggregation_threshold} \\
+  --min-distance-meters {min_distance_meters} \\
   --rng-seed {rng_seed} \\
   {deduplicate_pairs}  \\
   --output-path {output_path}")
