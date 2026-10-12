@@ -1,6 +1,6 @@
 [package]
 name = "odjitter"
-version = "0.2.1"
+version = "0.3.0"
 edition = "2021"
 authors = ["Robin Lovelace <robinlovelace>"]
 description = "Disaggregate origin/destination data from zones to points"
@@ -12,11 +12,15 @@ categories = ["science", "simulation", "command-line-utilities"]
 homepage = "https://github.com/itsleeds/odjitter"
 documentation = "https://docs.rs/odjitter"
 
+[workspace]
+members = ["crates/odjitter-core"]
+
 [package.metadata.docs.rs]
 all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
 
 [dependencies]
+odjitter-core = { version = "0.1.0", path = "crates/odjitter-core" }
 anyhow = "1.0"
 clap = { version = "4.5", features = ["derive"] }
 csv = "1.3"

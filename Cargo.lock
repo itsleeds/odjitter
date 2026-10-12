@@ -454,7 +454,7 @@ dependencies = [
 
 [[package]]
 name = "odjitter"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "anyhow",
  "clap",
@@ -465,10 +465,18 @@ dependencies = [
  "geo-types",
  "geojson",
  "geozero",
+ "odjitter-core",
  "ordered-float",
  "rand",
  "rstar",
  "serde_json",
+]
+
+[[package]]
+name = "odjitter-core"
+version = "0.1.0"
+dependencies = [
+ "rand",
 ]
 
 [[package]]

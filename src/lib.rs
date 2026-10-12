@@ -62,11 +62,9 @@ use anyhow::{bail, Result};
 use fs_err::File;
 use geo::algorithm::bounding_rect::BoundingRect;
 use geo::algorithm::contains::Contains;
-use geo::algorithm::haversine_distance::HaversineDistance;
 use geo_types::{LineString, MultiPolygon, Point, Rect};
 use geojson::{Feature, FeatureReader};
-use ordered_float::NotNan;
-use rand::prelude::SliceRandom;
+use odjitter_core as core;
 use rand::rngs::StdRng;
 use rand::Rng;
 use rstar::{RTree, RTreeObject, AABB};
@@ -225,20 +223,20 @@ pub fn jitter<P: AsRef<Path>, F: FnMut(Feature) -> Result<()>>(
     // TODO Don't allow disaggregation_threshold to be 0
     let csv_path = csv_path.as_ref();
 
-    let points_per_origin_zone: Option<BTreeMap<String, Vec<WeightedPoint>>> =
+    let points_per_origin_zone: Option<BTreeMap<String, Vec<core::WeightedPoint>>> =
         if let Subsample::WeightedPoints(points) = options.subsample_origin {
             Some(points_per_polygon(points, zones))
         } else {
             None
         };
-    let points_per_destination_zone: Option<BTreeMap<String, Vec<WeightedPoint>>> =
+    let points_per_destination_zone: Option<BTreeMap<String, Vec<core::WeightedPoint>>> =
         if let Subsample::WeightedPoints(points) = options.subsample_destination {
             Some(points_per_polygon(points, zones))
         } else {
             None
         };
 
-    let mut seen_pairs: HashSet<ODPair> = HashSet::new();
+    let mut seen_pairs: HashSet<core::Key> = HashSet::new();
 
     println!("Disaggregating OD data");
     for rec in csv::Reader::from_reader(File::open(csv_path)?).deserialize() {
@@ -253,13 +251,7 @@ pub fn jitter<P: AsRef<Path>, F: FnMut(Feature) -> Result<()>>(
             .get(&disaggregation_key)
             .and_then(|count| count.parse::<f64>().ok())
         {
-            // If disaggregation_key is 0 for this row, don't scale the counts, but still preserve
-            // the row (and jitter it just once)
-            if count == 0.0 {
-                1.0
-            } else {
-                (count / disaggregation_threshold as f64).ceil()
-            }
+            core::repeats(count, disaggregation_threshold)
         } else {
             bail!(
                 "{} doesn't have a {} column or the value isn't numeric; set disaggregation_key properly",
@@ -332,25 +324,19 @@ pub fn jitter<P: AsRef<Path>, F: FnMut(Feature) -> Result<()>>(
             }
         }
 
-        for _ in 0..repeat as usize {
-            loop {
-                let o = origin_sampler.sample(rng);
-                let d = destination_sampler.sample(rng);
-                if o.haversine_distance(&d) >= options.min_distance_meters {
-                    if options.deduplicate_pairs {
-                        let pair = hashify(o, d);
-                        if seen_pairs.contains(&pair) {
-                            continue;
-                        } else {
-                            seen_pairs.insert(pair);
-                        }
-                    }
-
-                    output(to_geojson(o, d, json_map.clone()))?;
-                    break;
-                }
-            }
-        }
+        core::pairs(
+            repeat as usize,
+            options.min_distance_meters,
+            |rng| origin_sampler.sample(rng),
+            |rng| destination_sampler.sample(rng),
+            if options.deduplicate_pairs {
+                Some(&mut seen_pairs)
+            } else {
+                None
+            },
+            rng,
+            |o, d| output(to_geojson(o, d, json_map.clone())),
+        )?;
     }
     Ok(())
 }
@@ -379,13 +365,13 @@ pub fn disaggregate<P: AsRef<Path>, F: FnMut(Feature) -> Result<()>>(
 ) -> Result<()> {
     let csv_path = csv_path.as_ref();
 
-    let points_per_origin_zone: Option<BTreeMap<String, Vec<WeightedPoint>>> =
+    let points_per_origin_zone: Option<BTreeMap<String, Vec<core::WeightedPoint>>> =
         if let Subsample::WeightedPoints(points) = options.subsample_origin {
             Some(points_per_polygon(points, zones))
         } else {
             None
         };
-    let points_per_destination_zone: Option<BTreeMap<String, Vec<WeightedPoint>>> =
+    let points_per_destination_zone: Option<BTreeMap<String, Vec<core::WeightedPoint>>> =
         if let Subsample::WeightedPoints(points) = options.subsample_destination {
             Some(points_per_polygon(points, zones))
         } else {
@@ -435,7 +421,7 @@ pub fn disaggregate<P: AsRef<Path>, F: FnMut(Feature) -> Result<()>>(
             &destination_id,
         )?;
 
-        let mut seen_pairs: HashSet<ODPair> = HashSet::new();
+        let mut seen_pairs: HashSet<core::Key> = HashSet::new();
 
         // Interpret all columns except origin_key and destination_key as numeric, split by mode
         for (mode, value) in string_map {
@@ -454,27 +440,23 @@ pub fn disaggregate<P: AsRef<Path>, F: FnMut(Feature) -> Result<()>>(
                     }
                 }
 
-                for _ in 0..count {
-                    loop {
-                        let o = origin_sampler.sample(rng);
-                        let d = destination_sampler.sample(rng);
-                        if o.haversine_distance(&d) >= options.min_distance_meters {
-                            if options.deduplicate_pairs {
-                                let pair = hashify(o, d);
-                                if seen_pairs.contains(&pair) {
-                                    continue;
-                                } else {
-                                    seen_pairs.insert(pair);
-                                }
-                            }
-
-                            let mut json_map: Map<String, Value> = Map::new();
-                            json_map.insert("mode".to_string(), Value::String(mode.clone()));
-                            output(to_geojson(o, d, json_map))?;
-                            break;
-                        }
-                    }
-                }
+                core::pairs(
+                    count,
+                    options.min_distance_meters,
+                    |rng| origin_sampler.sample(rng),
+                    |rng| destination_sampler.sample(rng),
+                    if options.deduplicate_pairs {
+                        Some(&mut seen_pairs)
+                    } else {
+                        None
+                    },
+                    rng,
+                    |o, d| {
+                        let mut json_map: Map<String, Value> = Map::new();
+                        json_map.insert("mode".to_string(), Value::String(mode.clone()));
+                        output(to_geojson(o, d, json_map))
+                    },
+                )?;
             }
         }
     }
@@ -518,7 +500,7 @@ pub fn load_zones(
 fn points_per_polygon(
     points: Vec<WeightedPoint>,
     polygons: &HashMap<String, MultiPolygon<f64>>,
-) -> BTreeMap<String, Vec<WeightedPoint>> {
+) -> BTreeMap<String, Vec<core::WeightedPoint>> {
     let tree = RTree::bulk_load(points);
 
     let mut output = BTreeMap::new();
@@ -530,7 +512,11 @@ fn points_per_polygon(
         let envelope: AABB<[f64; 2]> = AABB::from_corners([min.x, min.y], [max.x, max.y]);
         for pt in tree.locate_in_envelope(&envelope) {
             if polygon.contains(&pt.point) {
-                pts_inside.push(pt.clone());
+                pts_inside.push(core::WeightedPoint {
+                    x: pt.point.x(),
+                    y: pt.point.y(),
+                    weight: pt.weight,
+                });
             }
         }
         output.insert(key.clone(), pts_inside);
@@ -538,8 +524,8 @@ fn points_per_polygon(
     output
 }
 
-fn to_geojson(pt1: Point<f64>, pt2: Point<f64>, properties: Map<String, Value>) -> Feature {
-    let line_string: LineString<f64> = vec![pt1, pt2].into();
+fn to_geojson(o: core::Point, d: core::Point, properties: Map<String, Value>) -> Feature {
+    let line_string: LineString<f64> = vec![Point::new(o.x, o.y), Point::new(d.x, d.y)].into();
     Feature {
         geometry: Some(geojson::Geometry {
             value: geojson::Value::from(&line_string),
@@ -555,12 +541,12 @@ fn to_geojson(pt1: Point<f64>, pt2: Point<f64>, properties: Map<String, Value>) 
 
 enum Subsampler<'a> {
     RandomPoints(&'a MultiPolygon<f64>, Rect<f64>),
-    WeightedPoints(&'a Vec<WeightedPoint>),
+    WeightedPoints(&'a Vec<core::WeightedPoint>),
 }
 
 impl<'a> Subsampler<'a> {
     fn new(
-        points_per_zone: &'a Option<BTreeMap<String, Vec<WeightedPoint>>>,
+        points_per_zone: &'a Option<BTreeMap<String, Vec<core::WeightedPoint>>>,
         zone_polygon: &'a MultiPolygon<f64>,
         zone_id: &str,
     ) -> Result<Subsampler<'a>> {
@@ -579,22 +565,18 @@ impl<'a> Subsampler<'a> {
         }
     }
 
-    fn sample(&self, rng: &mut StdRng) -> Point<f64> {
+    fn sample(&self, rng: &mut StdRng) -> Option<core::Point> {
         match self {
             Subsampler::RandomPoints(polygon, bounds) => loop {
                 let x = rng.gen_range(bounds.min().x..=bounds.max().x);
                 let y = rng.gen_range(bounds.min().y..=bounds.max().y);
-                let pt = Point::new(x, y);
-                if polygon.contains(&pt) {
-                    return pt;
+                if polygon.contains(&Point::new(x, y)) {
+                    return Some(core::Point { x, y });
                 }
             },
             Subsampler::WeightedPoints(points) => {
                 // TODO Sample with replacement or not?
-                // TODO If there are no two subpoints that're greater than this distance, we'll
-                // infinite loop. Detect upfront, or maybe just give up after a fixed number of
-                // attempts?
-                points.choose_weighted(rng, |pt| pt.weight).unwrap().point
+                core::pick(points, rng)
             }
         }
     }
@@ -607,15 +589,4 @@ impl<'a> Subsampler<'a> {
             Subsampler::WeightedPoints(points) => Some(points.len()),
         }
     }
-}
-
-type ODPair = [NotNan<f64>; 4];
-fn hashify(o: Point<f64>, d: Point<f64>) -> ODPair {
-    // We can't collect into an array, so write this a bit manually
-    [
-        NotNan::new(o.x()).unwrap(),
-        NotNan::new(o.y()).unwrap(),
-        NotNan::new(d.x()).unwrap(),
-        NotNan::new(d.y()).unwrap(),
-    ]
 }

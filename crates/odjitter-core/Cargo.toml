@@ -1,0 +1,14 @@
+[package]
+name = "odjitter-core"
+version = "0.1.0"
+edition = "2021"
+authors = ["Robin Lovelace <robinlovelace>"]
+description = "Sample OD pairs from weighted points"
+repository = "https://github.com/itsleeds/odjitter"
+license = "Apache-2.0"
+readme = "README.md"
+keywords = ["transportation", "origin-destination", "sampling"]
+categories = ["science", "simulation"]
+
+[dependencies]
+rand = "0.8"
