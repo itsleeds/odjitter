@@ -7,6 +7,8 @@ description = "Core sampling and disaggregation logic for odjitter"
 repository = "https://github.com/itsleeds/odjitter"
 license = "Apache-2.0"
 readme = "README.md"
+keywords = ["transportation", "origin-destination", "sampling"]
+categories = ["science", "simulation"]
 
 [dependencies]
 rand = "0.8"
