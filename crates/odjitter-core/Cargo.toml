@@ -1,0 +1,12 @@
+[package]
+name = "odjitter-core"
+version = "0.1.0"
+edition = "2021"
+authors = ["Robin Lovelace <robinlovelace>"]
+description = "Core sampling and disaggregation logic for odjitter"
+repository = "https://github.com/itsleeds/odjitter"
+license = "Apache-2.0"
+readme = "README.md"
+
+[dependencies]
+rand = "0.8"
